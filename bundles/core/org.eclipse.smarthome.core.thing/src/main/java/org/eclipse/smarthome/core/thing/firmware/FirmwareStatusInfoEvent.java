@@ -58,6 +58,15 @@ public final class FirmwareStatusInfoEvent extends AbstractEvent {
     public String getType() {
         return TYPE;
     }
+    
+    /**
+     * <b>Deprecated - QIVICON specific method, introduced for backward compatibility of the smarthome b2c application.</b><br><br>
+     * @return
+     */
+    @Deprecated
+    public ThingUID getThingUID() {
+        return getFirmwareStatusInfo().getThingUID();
+    }
 
     @Override
     public int hashCode() {

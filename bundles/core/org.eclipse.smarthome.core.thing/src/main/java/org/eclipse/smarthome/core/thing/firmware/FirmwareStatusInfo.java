@@ -18,6 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
 
 /**
  * The {@link FirmwareStatusInfo} represents the {@link FirmwareStatus} of a {@link Thing}. If the firmware status is
@@ -111,6 +112,19 @@ public final class FirmwareStatusInfo {
      */
     public ThingUID getThingUID() {
         return thingUID;
+    }
+    
+    /**
+     * <b>Deprecated - QIVICON specific method, introduced for backward compatibility of the smarthome b2c application.</b><br><br>
+     * 
+     * Returns the firmware UID of the latest updatable firmware for the thing.
+     *
+     * @return the firmware UID (only set if firmware status is {@link FirmwareStatus#UPDATE_EXECUTABLE})
+     */
+    @Deprecated
+    public FirmwareUID getUpdatableFirmwareUID() {
+        FirmwareUID firmwareUID = new FirmwareUID(getThingUID().getThingTypeUID(), getUpdatableFirmwareVersion());
+        return firmwareUID;
     }
 
     @Override
