@@ -31,6 +31,8 @@
 			<channel id="nowPlayingTrack" typeId="nowPlayingTrack" />
 			<!-- Notification channels -->
 			<channel id="notificationsound" typeId="notificationsound" />
+			<channel id="notificationUrl" typeId="notificationUrl" />
+			<channel id="notificationVolume" typeId="notificationVolume" />
 		</channels>
 		<config-description-ref uri="thing-type:bosesoundtouch:config" />
 	</thing-type>

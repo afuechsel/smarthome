@@ -18,6 +18,9 @@ package org.eclipse.smarthome.binding.bosesoundtouch.internal;
  * @author Ivaylo Ivanov - Initial contribution
  */
 public class BoseSoundTouchNotificationChannelConfiguration {
+    
+    public static final String MIN_FIRMWARE = "14";
+    public static final String MODEL_TYPE = "sm2";
 
     public static final String NOTIFICATION_VOLUME = "notificationVolume";
     public static final String NOTIFICATION_SERVICE = "notificationService";
@@ -28,4 +31,12 @@ public class BoseSoundTouchNotificationChannelConfiguration {
     public String notificationService;
     public String notificationReason;
     public String notificationMessage;
+    
+    public static boolean isSupportedFirmware(String firmware) {
+        return firmware != null && firmware.compareTo(MIN_FIRMWARE) > 0;
+    }
+    
+    public static boolean isSupportedHardware(String hardware) {
+        return MODEL_TYPE.equals(hardware);
+    }
 }

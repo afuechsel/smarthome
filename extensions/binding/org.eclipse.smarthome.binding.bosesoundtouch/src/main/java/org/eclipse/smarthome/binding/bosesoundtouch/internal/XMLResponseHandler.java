@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.io.net.http.HttpUtil;
@@ -286,6 +287,10 @@ public class XMLResponseHandler extends DefaultHandler {
             case Preset:
             case Updates:
             case Volume:
+            case Components:
+            case Component:
+                state = nextState(stateMap, curState, localName);
+                break;
             case BassCapabilities:
                 state = nextState(stateMap, curState, localName);
                 break;
@@ -300,6 +305,8 @@ public class XMLResponseHandler extends DefaultHandler {
             case ContentItemContainerArt:
             case InfoName:
             case InfoType:
+            case InfoFirmwareVersion:
+            case InfoModuleType:
             case NowPlayingAlbum:
             case NowPlayingArt:
             case NowPlayingArtist:
@@ -492,6 +499,14 @@ public class XMLResponseHandler extends DefaultHandler {
                 break;
             case InfoType:
                 setConfigOption(DEVICE_INFO_TYPE, new String(ch, start, length));
+                setConfigOption(Thing.PROPERTY_MODEL_ID, new String(ch, start, length));
+                break;
+            case InfoModuleType:
+                setConfigOption(Thing.PROPERTY_HARDWARE_VERSION, new String(ch, start, length));
+                break;
+            case InfoFirmwareVersion:
+                String[] fwVersion = new String(ch, start, length).split(" ");
+                setConfigOption(Thing.PROPERTY_FIRMWARE_VERSION, fwVersion[0]);
                 break;
             case BassAvailable:
                 boolean bassAvailable = Boolean.parseBoolean(new String(ch, start, length));

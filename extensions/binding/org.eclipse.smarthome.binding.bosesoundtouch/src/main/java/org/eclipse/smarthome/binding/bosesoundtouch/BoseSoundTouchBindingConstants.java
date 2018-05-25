@@ -73,6 +73,8 @@ public class BoseSoundTouchBindingConstants {
     public static final String CHANNEL_NOWPLAYING_STATIONNAME = "nowPlayingStationName";
     public static final String CHANNEL_NOWPLAYING_TRACK = "nowPlayingTrack";
     public static final String CHANNEL_NOTIFICATION_SOUND = "notificationsound";
+    public static final String CHANNEL_NOTIFICATION_URL = "notificationUrl";
+    public static final String CHANNEL_NOTIFICATION_VOLUME = "notificationVolume";
 
     // Device information parameters;
     public static final String DEVICE_INFO_NAME = "INFO_NAME";

@@ -13,6 +13,11 @@
 package org.eclipse.smarthome.binding.bosesoundtouch.handler;
 
 import static org.eclipse.smarthome.binding.bosesoundtouch.BoseSoundTouchBindingConstants.*;
+import static org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration.NOTIFICATION_VOLUME;
+import static org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration.MIN_FIRMWARE;
+import static org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration.MODEL_TYPE;
+import static org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration.isSupportedFirmware;
+import static org.eclipse.smarthome.binding.bosesoundtouch.internal.BoseSoundTouchNotificationChannelConfiguration.isSupportedHardware;
 
 import java.io.IOException;
 import java.net.URI;
@@ -154,6 +159,16 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                 case CHANNEL_BASS:
                     commandExecutor.getInformations(APIRequest.BASS);
                     break;
+                case CHANNEL_NOTIFICATION_VOLUME:
+                    Channel notificationSoundChannel = getThing().getChannel(CHANNEL_NOTIFICATION_SOUND);
+                    String notificationVolume = Objects.toString(
+                            notificationSoundChannel.getConfiguration().get(NOTIFICATION_VOLUME), null);
+                    if (notificationVolume != null) {
+                        updateState(channelUID, new PercentType(notificationVolume));                        
+                    }
+                    break;
+                case CHANNEL_NOTIFICATION_URL:
+                case CHANNEL_NOTIFICATION_SOUND:
                 case CHANNEL_KEY_CODE:
                     // refresh makes no sense... ?
                     break;
@@ -258,19 +273,42 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                     ChannelTypeUID chTypeUid = channel.getChannelTypeUID();
                     if (chTypeUid != null) {
                         switch (channel.getChannelTypeUID().getId()) {
+                            case CHANNEL_NOTIFICATION_VOLUME:
+                                if (command instanceof PercentType) {
+                                    Channel notificationSoundChannel = getThing().getChannel(CHANNEL_NOTIFICATION_SOUND);
+                                    if (notificationSoundChannel != null) {
+                                        int notificationVol = ((PercentType) command).intValue();
+                                        if (notificationVol < 10) {
+                                            notificationVol = 10;
+                                            updateState(CHANNEL_NOTIFICATION_VOLUME, new PercentType(notificationVol));
+                                        }
+                                        else if(notificationVol > 70) {
+                                            notificationVol = 70;
+                                            updateState(CHANNEL_NOTIFICATION_VOLUME, new PercentType(notificationVol));
+                                        }
+                                        notificationSoundChannel.getConfiguration().put(NOTIFICATION_VOLUME, notificationVol);
+                                    }
+                                }
+                                
+                                return;
+                            case CHANNEL_NOTIFICATION_URL:
                             case CHANNEL_NOTIFICATION_SOUND:
                                 String appKey = Objects.toString(getConfig().get(BoseSoundTouchConfiguration.APP_KEY), null);
-                                if (appKey != null && !appKey.isEmpty()) {
+                                String fwVersion = getThing().getProperties().get(Thing.PROPERTY_FIRMWARE_VERSION);
+                                String hwVersion = getThing().getProperties().get(Thing.PROPERTY_HARDWARE_VERSION);
+                                if (appKey != null && !appKey.isEmpty() && isSupportedFirmware(fwVersion) && isSupportedHardware(hwVersion)) {
                                     if (command instanceof StringType) {
                                         String url = command.toString();
-                                        BoseSoundTouchNotificationChannelConfiguration notificationConfiguration = channel
+                                        Channel notificationSoundChannel = getThing().getChannel(CHANNEL_NOTIFICATION_SOUND);
+                                        BoseSoundTouchNotificationChannelConfiguration notificationConfiguration = notificationSoundChannel
                                                 .getConfiguration().as(BoseSoundTouchNotificationChannelConfiguration.class);
                                         if (!url.isEmpty()) {
                                             commandExecutor.playNotificationSound(appKey, notificationConfiguration, url);
                                         }
                                     }
                                 } else {
-                                    logger.warn("Missing app key - cannot use notification api");
+                                    logger.warn("Cannot use notification API - either missing app key or unsupported firmware/hardware version ({}/{}), "
+                                            + "min supported: ({}/{})", fwVersion, hwVersion, MIN_FIRMWARE, MODEL_TYPE);
                                 }
                                 return;
                         }
@@ -280,7 +318,6 @@ public class BoseSoundTouchHandler extends BaseThingHandler implements WebSocket
                         channelUID.getId());
                 break;
         }
-
     }
 
     /**
