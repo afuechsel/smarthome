@@ -610,6 +610,11 @@ public abstract class AbstractHomematicGateway implements RpcEventListener, Home
         throw new IllegalStateException("Could not determine install mode because no suitable interface exists");
     }
 
+    @Override
+    public void changeKey(String passphrase) throws IOException {
+        getRpcClient(HmInterface.RF).changeKey(HmInterface.RF, passphrase);
+    }
+
     private void updateRssiInfo(String address, String datapointName, Integer value) {
         HmDatapointInfo dpInfo = new HmDatapointInfo(address, HmParamsetType.VALUES, 0, datapointName);
         HmChannel channel;

@@ -55,7 +55,10 @@ public class DefaultGateway extends AbstractHomematicGateway {
 
     @Override
     protected void loadDeviceNames(Collection<HmDevice> devices) throws IOException {
-        // not supported
+        for (HmDevice device : devices) {
+            // set empty name for DiscoveryResult, then Pairing Wizard 2 will choose suitable label from PIS
+            device.setName("");
+        }
     }
 
 }

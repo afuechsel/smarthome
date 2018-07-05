@@ -7,7 +7,9 @@ Bundle-SymbolicName: org.eclipse.smarthome.binding.homematic;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.10.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/jetty-server-9.3.20.v20170531.jar,
+ lib/javax.servlet-api-3.1.0.jar
 Export-Package: 
  org.eclipse.smarthome.binding.homematic,
  org.eclipse.smarthome.binding.homematic.handler,
@@ -17,10 +19,6 @@ Import-Package:
  com.thoughtworks.xstream.annotations,
  com.thoughtworks.xstream.io,
  com.thoughtworks.xstream.io.xml,
- javax.measure,
- javax.measure.quantity,
- javax.servlet,
- javax.servlet.http,
  javax.xml.bind,
  org.apache.commons.lang,
  org.apache.commons.lang.builder,
@@ -29,13 +27,14 @@ Import-Package:
  org.eclipse.jetty.client,
  org.eclipse.jetty.client.api,
  org.eclipse.jetty.client.util,
- org.eclipse.jetty.http,
- org.eclipse.jetty.server,
- org.eclipse.jetty.server.handler,
- org.eclipse.jetty.util,
- org.eclipse.jetty.util.component,
- org.eclipse.smarthome.binding.homematic,
- org.eclipse.smarthome.binding.homematic.handler,
+ org.eclipse.jetty.http;version="9.3.20",
+ org.eclipse.jetty.io;version="9.3.20",
+ org.eclipse.jetty.util;version="9.3.20",
+ org.eclipse.jetty.util.annotation;version="9.3.20",
+ org.eclipse.jetty.util.component;version="9.3.20",
+ org.eclipse.jetty.util.log;version="9.3.20",
+ org.eclipse.jetty.util.ssl;version="9.3.20",
+ org.eclipse.jetty.util.thread;version="9.3.20",
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.validation,
  org.eclipse.smarthome.config.discovery,

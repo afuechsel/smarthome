@@ -421,6 +421,19 @@ public abstract class RpcClient<T> {
     }
 
     /**
+     * Sets the AES key used by the specified interface
+     * 
+     * @param hmInterface The interface where the AES key shall be set
+     * @param passphrase The input from which the new AES key will be generated
+     * @throws IOException if RpcClient fails to propagate command
+     */
+    public void changeKey(HmInterface hmInterface, String passphrase) throws IOException {
+        RpcRequest<T> request = createRpcRequest("changeKey");
+        request.addArg(passphrase);
+        sendMessage(config.getRpcPort(hmInterface), request);
+    }
+
+    /**
      * Deletes the device from the gateway.
      */
     public void deleteDevice(HmDevice device, int flags) throws IOException {

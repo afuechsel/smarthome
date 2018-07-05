@@ -91,6 +91,15 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
     @Override
     public void initialize() {
         synchronized (initDisposeLock) {
+            // Qivicon-specific check: do not initialize if the security key is missing
+            final Boolean securityKeyIsMissing = (Boolean) getThing().getConfiguration().get("securityKeyIsMissing");
+            if (securityKeyIsMissing != null && securityKeyIsMissing) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Waiting for security key");
+                logger.info("Homematic bridge was not initialized due to a missing security key");
+                return;
+            }
+            // End of Qivicon-specific check
+
             isDisposed = false;
             initializeFuture = scheduler.submit(this::initializeInternal);
         }
@@ -159,6 +168,37 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
         }
     }
 
+    /**
+     * Qivicon-specific method: Changes the key on the homematic gateway of this handler.
+     *
+     * @param passphrase The passphrase that will be sent to the gateway to set a new key
+     * @throws IOException If the passphrase could not be transmitted successfully
+     */
+    public void changeKey(String passphrase) throws IOException {
+        synchronized (initDisposeLock) {
+            if (gateway == null) {
+                HomematicConfig tempConfig = createHomematicConfig();
+                String id = getThing().getUID().getId();
+                HomematicGateway tempGateway = HomematicGatewayFactory.createGateway(id, tempConfig, this, httpClient);
+                logger.info("Homematic gateway '{}' has temporarily been initialized to set a new security key.", id);
+                try {
+                    tempGateway.initialize();
+                    tempGateway.changeKey(passphrase);
+                } catch (IOException e) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+                    throw new IOException(
+                            "Homematic bridge was set to OFFLINE-COMMUNICATION_ERROR due to the following exception: "
+                                    + e.getMessage(),
+                            e);
+                } finally {
+                    tempGateway.dispose();
+                }
+            } else {
+                gateway.changeKey(passphrase);
+            }
+        }
+    }
+
     @Override
     public void dispose() {
         synchronized (initDisposeLock) {
@@ -181,6 +221,7 @@ public class HomematicBridgeHandler extends BaseBridgeHandler implements Homemat
         }
         if (gateway != null) {
             gateway.dispose();
+            gateway = null;
         }
         if (config != null) {
             portPool.release(config.getXmlCallbackPort());

@@ -122,6 +122,14 @@ public interface HomematicGateway {
     public int getInstallMode() throws IOException;
 
     /**
+     * Changes the AES key used by the HomematicGateway.
+     * 
+     * @param passphrase the input sent to the gateway in order to generate a new key
+     * @throws IOException if the key could not be transmitted
+     */
+    public void changeKey(String passphrase) throws IOException;
+
+    /**
      * Loads all rssi values from the gateway.
      */
     public void loadRssiValues() throws IOException;
