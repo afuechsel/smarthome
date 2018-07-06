@@ -10,8 +10,14 @@
   </parent>
 
   <artifactId>org.eclipse.smarthome.binding.homematic</artifactId>
+  <groupId>org.eclipse.smarthome.binding</groupId>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome Homematic Binding</name>
+
+  <properties>
+    <bundle.symbolicName>org.eclipse.smarthome.binding.homematic</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.binding.homematic</bundle.namespace>
+  </properties>
 
 </project>
