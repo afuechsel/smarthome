@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
+import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
 import org.junit.Assert;
@@ -94,11 +94,6 @@ public class JavaOSGiTest extends JavaTest {
         @SuppressWarnings("unchecked")
         final ServiceReference<T> serviceReference = (ServiceReference<T>) bundleContext
                 .getServiceReference(clazz.getName());
-
-        if (serviceReference == null) {
-            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
-            return null;
-        }
 
         return unrefService(serviceReference);
     }

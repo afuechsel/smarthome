@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
-import org.eclipse.smarthome.test.internal.java.MissingServiceAnalyzer;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
 import org.junit.Assert;
@@ -100,11 +99,6 @@ public abstract class OSGiTest {
         @SuppressWarnings("unchecked")
         final ServiceReference<T> serviceReference = (ServiceReference<T>) bundleContext
                 .getServiceReference(clazz.getName());
-
-        if (serviceReference == null) {
-            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
-            return null;
-        }
 
         return unrefService(serviceReference);
     }

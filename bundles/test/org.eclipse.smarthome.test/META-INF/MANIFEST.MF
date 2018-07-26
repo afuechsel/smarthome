@@ -36,10 +36,7 @@ Import-Package:
  org.mockito.invocation,
  org.mockito.stubbing,
  org.osgi.framework,
- org.osgi.framework.dto,
  org.osgi.service.cm;resolution:=optional,
- org.osgi.service.component.runtime,
- org.osgi.service.component.runtime.dto,
  org.slf4j
 Require-Bundle: 
  net.bytebuddy.byte-buddy;bundle-version="1.7.0";visibility:=reexport,
