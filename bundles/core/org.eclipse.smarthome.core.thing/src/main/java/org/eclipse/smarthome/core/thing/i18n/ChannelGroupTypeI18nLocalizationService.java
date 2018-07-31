@@ -14,6 +14,7 @@ package org.eclipse.smarthome.core.thing.i18n;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -104,11 +105,8 @@ public class ChannelGroupTypeI18nLocalizationService {
 
         List<ChannelDefinition> localizedChannelDefinitions = channelI18nUtil.createLocalizedChannelDefinitions(bundle,
                 channelGroupType.getChannelDefinitions(),
-                channelDefinition -> thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition,
-                        channelDefinition.getLabel(), locale),
-                channelDefinition -> thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID,
-                        channelDefinition, channelDefinition.getDescription(), locale),
-                locale);
+                createChannelLabelResolver(bundle, channelGroupTypeUID, locale),
+                createChannelDescriptionResolver(bundle, channelGroupTypeUID, locale), locale);
 
         ChannelGroupTypeBuilder builder = ChannelGroupTypeBuilder
                 .instance(channelGroupTypeUID, label == null ? defaultLabel : label)
@@ -120,4 +118,29 @@ public class ChannelGroupTypeI18nLocalizationService {
         return builder.build();
     }
 
+    private Function<ChannelDefinition, @Nullable String> createChannelLabelResolver(Bundle bundle,
+            ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale) {
+        return new Function<ChannelDefinition, @Nullable String>() {
+
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition,
+                        channelDefinition.getLabel(), locale);
+            }
+        };
+    }
+
+    private Function<ChannelDefinition, @Nullable String> createChannelDescriptionResolver(Bundle bundle,
+            ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale) {
+        return new Function<ChannelDefinition, @Nullable String>() {
+
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID, channelDefinition,
+                        channelDefinition.getDescription(), locale);
+            }
+        };
+    }
+
 }
+
