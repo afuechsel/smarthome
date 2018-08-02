@@ -56,6 +56,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
@@ -184,7 +185,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                         || dp.getParamsetType() != HmParamsetType.VALUES) {
                     continue;
                 }
-                ChannelUID channelUID = UidUtils.generateChannelUID(dp, getThing().getUID());
+                ChannelUID channelUID = getChannelForDatapoint(dp);
                 if (containsChannel(thingChannels, channelUID)) {
                     // Channel is already present -> channel configuration likely hasn't changed
                     continue;
@@ -256,7 +257,7 @@ public class HomematicThingHandler extends BaseThingHandler {
         HmDatapoint dp = null;
         try {
             HomematicGateway gateway = getHomematicGateway();
-            HmDatapointInfo dpInfo = UidUtils.createHmDatapointInfo(channelUID);
+            HmDatapointInfo dpInfo = getDatapointForChannel(channelUID);
             if (RefreshType.REFRESH == command) {
                 logger.debug("Refreshing {}", dpInfo);
                 dpInfo = new HmDatapointInfo(dpInfo.getAddress(), HmParamsetType.VALUES, 0,
@@ -328,7 +329,7 @@ public class HomematicThingHandler extends BaseThingHandler {
     private void updateChannelState(ChannelUID channelUID)
             throws GatewayNotAvailableException, HomematicClientException, IOException, ConverterException {
         HomematicGateway gateway = getHomematicGateway();
-        HmDatapointInfo dpInfo = UidUtils.createHmDatapointInfo(channelUID);
+        HmDatapointInfo dpInfo = getDatapointForChannel(channelUID);
         HmDatapoint dp = gateway.getDatapoint(dpInfo);
         Channel channel = getThing().getChannel(channelUID.getId());
         updateChannelState(dp, channel);
@@ -349,7 +350,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                 updateConfiguration(config);
             } else if (!HomematicTypeGeneratorImpl.isIgnoredDatapoint(dp)) {
                 // update channel
-                ChannelUID channelUID = UidUtils.generateChannelUID(dp, thing.getUID());
+                ChannelUID channelUID = getChannelForDatapoint(dp);
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
                     updateChannelState(dp, channel);
@@ -449,12 +450,12 @@ public class HomematicThingHandler extends BaseThingHandler {
      * Returns the channel config for the given datapoint.
      */
     protected HmDatapointConfig getChannelConfig(HmDatapoint dp) {
-        ChannelUID channelUid = UidUtils.generateChannelUID(dp, getThing().getUID());
+    	ChannelUID channelUid = getChannelForDatapoint(dp);
         Channel channel = getThing().getChannel(channelUid.getId());
         return channel != null ? getChannelConfig(channel, dp) : new HmDatapointConfig();
     }
 
-    /**
+	/**
      * Returns the config for a channel.
      */
     private HmDatapointConfig getChannelConfig(Channel channel, HmDatapoint dp) {
@@ -590,4 +591,46 @@ public class HomematicThingHandler extends BaseThingHandler {
     public synchronized boolean isDeletionPending() {
         return deviceDeletionPending;
     }
+    
+	/**
+	 * This method is used to find the corresponding {@link HmDatapointInfo} if the
+	 * {@link ChannelUID} is known. Typically it is called on <b>communication from
+	 * the binding to homematic gateway</b>. <br/>
+	 * <br/>
+	 * By default, the HmDatapoint's channel name will be equal the channel name
+	 * contained in the ChannelUID. <i>e.g. for the ChannelUID,
+	 * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> HmDataPointInfo with
+	 * the name <b>RSSI</b> will be returned</i> <br/>
+	 * <br/>
+	 * Clients may override this method if a custom mapping is desired.
+	 * 
+	 * @param channelUID for which the mapping is required
+	 * @return corresponding HmDataPointInfo
+	 */
+	protected HmDatapointInfo getDatapointForChannel(ChannelUID channelUID) {
+		// default impl
+		return UidUtils.createHmDatapointInfo(channelUID);
+	}
+
+	/**
+	 * This method is used to find the corresponding {@link ChannelUID} if the
+	 * {@link HmDatapoint} is known. Typically it is called on <b>communication from
+	 * homematic gateway to the binding</b>. <br/>
+	 * <br/>
+	 * By default, the HmDatapoint's channel name will be equal to the channel name
+	 * contained in the ChannelUID. <i>e.g. for the HmDatapoint with
+	 * <b>address=LEQ123456, channel=0, name=RSSI</b> the ChannelUID
+	 * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> will be returned</i>
+	 * <br/>
+	 * <br/>
+	 * Clients may override this method if a custom mapping is desired.
+	 * 
+	 * @param dp datapoint which holds at least device's address, channel (to
+	 *           resolve number), name
+	 * @return corresponding ChannelUID
+	 */
+	protected ChannelUID getChannelForDatapoint(HmDatapoint dp) {
+		// default impl
+		return UidUtils.generateChannelUID(dp, getThing().getUID());
+	}
 }

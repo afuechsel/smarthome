@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * Allows external definition of
@@ -43,7 +44,12 @@ public interface HomematicThingTypeExcluder {
      * {@link org.eclipse.smarthome.core.thing.Channel}) which can be handled by
      * the binding (see
      * {@link org.eclipse.smarthome.binding.homematic.handler.HomematicThingHandler})</li>
-     * 
+     * <li>provide {@link org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory}
+     * which encapsulates creation of {@link org.eclipse.smarthome.core.Thing.binding.ThingHandler}
+     * (preferably an instance of
+     * {@link org.eclipse.smarthome.binding.homematic.handler.HomematicThingHandler})</li>
+     *
+     *
      * @return {@link ThingTypeUID}s of ThingTypes that are supposed to be
      *         excluded from the binding's thing-type generation
      */
@@ -52,7 +58,7 @@ public interface HomematicThingTypeExcluder {
     /**
      * Check for the given {@link ThingTypeUID} whether it is excluded by this
      * {@link HomematicThingTypeExcluder} or not
-     * 
+     *
      * @param thingType
      *            a specific ThingType, specified by its {@link ThingTypeUID}
      * @return <i>true</i>, if the {@link ThingType} is excluded
@@ -62,7 +68,7 @@ public interface HomematicThingTypeExcluder {
     /**
      * Check for the given {@link ChannelTypeUID} whether it is excluded by this
      * {@link HomematicThingTypeExcluder} or not
-     * 
+     *
      * @param channelType
      *            a specific ChannelType, specified by its
      *            {@link ChannelTypeUID}
@@ -75,7 +81,7 @@ public interface HomematicThingTypeExcluder {
     /**
      * Check for the given {@link ChannelGroupTypeUID} whether it is excluded by
      * this {@link HomematicThingTypeExcluder} or not
-     * 
+     *
      * @param channelGroupType
      *            a specific ChannelGroupType, specified by its
      *            {@link ChannelGroupTypeUID}
@@ -88,7 +94,7 @@ public interface HomematicThingTypeExcluder {
     /**
      * Check for the given config-description-{@link URI} whether it is excluded by
      * this {@link HomematicThingTypeExcluder} or not
-     * 
+     *
      * @param configDescriptionURI
      *            a specific ConfigDescription, specified by a unique
      *            {@link URI}

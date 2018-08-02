@@ -13,6 +13,7 @@ Bundle-ClassPath: .,
 Export-Package: 
  org.eclipse.smarthome.binding.homematic,
  org.eclipse.smarthome.binding.homematic.handler,
+ org.eclipse.smarthome.binding.homematic.internal.model,
  org.eclipse.smarthome.binding.homematic.type
 Import-Package: 
  com.thoughtworks.xstream,
