@@ -72,6 +72,8 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Höfer - Initial contribution
  * @author Dimitar Ivanov - update and cancel operations are run with different safe caller identifiers in order to
  *         execute asynchronously; Firmware update is done for thing
+ * @author Hannes Hofmann - removed event generation throttling for {@link FirmwareStatus#UPDATE_EXECUTABLE} events
+ *         so that these kind of events are published regularly
  */
 @Component(immediate = true, service = { EventSubscriber.class, FirmwareUpdateService.class })
 @NonNullByDefault
@@ -317,7 +319,8 @@ public final class FirmwareUpdateServiceImpl implements FirmwareUpdateService, E
         FirmwareStatusInfo previousFirmwareStatusInfo = firmwareStatusInfoMap.put(newFirmwareStatusInfo.getThingUID(),
                 newFirmwareStatusInfo);
 
-        if (previousFirmwareStatusInfo == null || !previousFirmwareStatusInfo.equals(newFirmwareStatusInfo)) {
+        if (previousFirmwareStatusInfo == null || !previousFirmwareStatusInfo.equals(newFirmwareStatusInfo) 
+        	   || newFirmwareStatusInfo.getFirmwareStatus() == FirmwareStatus.UPDATE_EXECUTABLE) {
             eventPublisher.post(FirmwareEventFactory.createFirmwareStatusInfoEvent(newFirmwareStatusInfo));
 
             if (newFirmwareStatusInfo.getFirmwareStatus() == FirmwareStatus.UPDATE_AVAILABLE

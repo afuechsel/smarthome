@@ -263,16 +263,30 @@ public class FirmwareUpdateServiceTest extends JavaOSGiTest {
     }
 
     @Test
-    public void testGetFirmwareStatusInfo_eventsOnlySentOnce() {
+    public void testGetFirmwareStatusInfo_eventsAreThrottled() {
+        final FirmwareStatusInfo unknownInfo = createUnknownInfo(thing3.getUID());
+
+        // invoke event generation for the identical firmware status info multiple times
+        assertThat(firmwareUpdateService.getFirmwareStatusInfo(thing3.getUID()), is(unknownInfo));
+        assertThat(firmwareUpdateService.getFirmwareStatusInfo(thing3.getUID()), is(unknownInfo));
+
+        // verify that the corresponding event is only sent once
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(mockPublisher, times(1)).post(eventCaptor.capture());
+    }
+
+    @Test
+    public void testGetFirmwareStatusInfo_updateExecutableEventsAreNotThrottled() {
         final FirmwareStatusInfo updateExecutableInfoFw112 = createUpdateExecutableInfo(thing1.getUID(), V112);
 
+        // invoke event generation for the identical firmware status info multiple times
+        assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112));
         assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112));
         assertThat(firmwareUpdateService.getFirmwareStatusInfo(THING1_UID), is(updateExecutableInfoFw112));
 
         // verify that the corresponding events are sent
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(mockPublisher, times(1)).post(eventCaptor.capture());
-        assertFirmwareStatusInfoEvent(THING1_UID, eventCaptor.getAllValues().get(0), updateExecutableInfoFw112);
+        verify(mockPublisher, times(3)).post(eventCaptor.capture());
     }
 
     @Test
