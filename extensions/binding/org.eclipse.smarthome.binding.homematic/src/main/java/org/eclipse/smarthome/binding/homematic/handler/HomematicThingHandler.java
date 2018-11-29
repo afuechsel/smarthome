@@ -450,12 +450,12 @@ public class HomematicThingHandler extends BaseThingHandler {
      * Returns the channel config for the given datapoint.
      */
     protected HmDatapointConfig getChannelConfig(HmDatapoint dp) {
-    	ChannelUID channelUid = getChannelForDatapoint(dp);
+        ChannelUID channelUid = getChannelForDatapoint(dp);
         Channel channel = getThing().getChannel(channelUid.getId());
         return channel != null ? getChannelConfig(channel, dp) : new HmDatapointConfig();
     }
 
-	/**
+    /**
      * Returns the config for a channel.
      */
     private HmDatapointConfig getChannelConfig(Channel channel, HmDatapoint dp) {
@@ -592,45 +592,45 @@ public class HomematicThingHandler extends BaseThingHandler {
         return deviceDeletionPending;
     }
     
-	/**
-	 * This method is used to find the corresponding {@link HmDatapointInfo} if the
-	 * {@link ChannelUID} is known. Typically it is called on <b>communication from
-	 * the binding to homematic gateway</b>. <br/>
-	 * <br/>
-	 * By default, the HmDatapoint's channel name will be equal the channel name
-	 * contained in the ChannelUID. <i>e.g. for the ChannelUID,
-	 * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> HmDataPointInfo with
-	 * the name <b>RSSI</b> will be returned</i> <br/>
-	 * <br/>
-	 * Clients may override this method if a custom mapping is desired.
-	 * 
-	 * @param channelUID for which the mapping is required
-	 * @return corresponding HmDataPointInfo
-	 */
-	protected HmDatapointInfo getDatapointForChannel(ChannelUID channelUID) {
-		// default impl
-		return UidUtils.createHmDatapointInfo(channelUID);
-	}
+    /**
+     * This method is used to find the corresponding {@link HmDatapointInfo} if the
+     * {@link ChannelUID} is known. Typically it is called on <b>communication from
+     * the binding to homematic gateway</b>. <br/>
+     * <br/>
+     * By default, the HmDatapoint's channel name will be equal the channel name
+     * contained in the ChannelUID. <i>e.g. for the ChannelUID,
+     * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> HmDataPointInfo with
+     * the name <b>RSSI</b> will be returned</i> <br/>
+     * <br/>
+     * Clients may override this method if a custom mapping is desired.
+     * 
+     * @param channelUID for which the mapping is required
+     * @return corresponding HmDataPointInfo
+     */
+    protected HmDatapointInfo getDatapointForChannel(ChannelUID channelUID) {
+        // default impl
+        return UidUtils.createHmDatapointInfo(channelUID);
+    }
 
-	/**
-	 * This method is used to find the corresponding {@link ChannelUID} if the
-	 * {@link HmDatapoint} is known. Typically it is called on <b>communication from
-	 * homematic gateway to the binding</b>. <br/>
-	 * <br/>
-	 * By default, the HmDatapoint's channel name will be equal to the channel name
-	 * contained in the ChannelUID. <i>e.g. for the HmDatapoint with
-	 * <b>address=LEQ123456, channel=0, name=RSSI</b> the ChannelUID
-	 * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> will be returned</i>
-	 * <br/>
-	 * <br/>
-	 * Clients may override this method if a custom mapping is desired.
-	 * 
-	 * @param dp datapoint which holds at least device's address, channel (to
-	 *           resolve number), name
-	 * @return corresponding ChannelUID
-	 */
-	protected ChannelUID getChannelForDatapoint(HmDatapoint dp) {
-		// default impl
-		return UidUtils.generateChannelUID(dp, getThing().getUID());
-	}
+    /**
+     * This method is used to find the corresponding {@link ChannelUID} if the
+     * {@link HmDatapoint} is known. Typically it is called on <b>communication from
+     * homematic gateway to the binding</b>. <br/>
+     * <br/>
+     * By default, the HmDatapoint's channel name will be equal to the channel name
+     * contained in the ChannelUID. <i>e.g. for the HmDatapoint with
+     * <b>address=LEQ123456, channel=0, name=RSSI</b> the ChannelUID
+     * <b>homematic_HM_Sec_WDS_2_123456_LEQ123456_0_RSSI</b> will be returned</i>
+     * <br/>
+     * <br/>
+     * Clients may override this method if a custom mapping is desired.
+     * 
+     * @param dp datapoint which holds at least device's address, channel (to
+     *           resolve number), name
+     * @return corresponding ChannelUID
+     */
+    protected ChannelUID getChannelForDatapoint(HmDatapoint dp) {
+        // default impl
+        return UidUtils.generateChannelUID(dp, getThing().getUID());
+    }
 }
