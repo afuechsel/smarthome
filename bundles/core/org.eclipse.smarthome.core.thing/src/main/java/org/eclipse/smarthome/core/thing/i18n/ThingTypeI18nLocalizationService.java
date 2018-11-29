@@ -177,63 +177,63 @@ public class ThingTypeI18nLocalizationService {
     }
 
     private Function<ChannelDefinition, @Nullable String> createChannelLabelResolver(Bundle bundle,ThingTypeUID thingTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelDefinition channelDefinition) {
-				return thingTypeI18nUtil.getChannelLabel(bundle, thingTypeUID, channelDefinition, channelDefinition.getLabel(), locale);
-			}
-		};
+        return new Function<ChannelDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelLabel(bundle, thingTypeUID, channelDefinition, channelDefinition.getLabel(), locale);
+            }
+        };
     }
     
     private Function<ChannelDefinition, @Nullable String> createChannelDescriptionResolver(Bundle bundle,ThingTypeUID thingTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelDefinition channelDefinition) {
-				return thingTypeI18nUtil.getChannelDescription(bundle, thingTypeUID, channelDefinition, channelDefinition.getDescription(), locale);
-			}
-		};
+        return new Function<ChannelDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelDescription(bundle, thingTypeUID, channelDefinition, channelDefinition.getDescription(), locale);
+            }
+        };
     }
     
     private Function<ChannelDefinition, @Nullable String> createChannelLabelResolver(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelDefinition channelDefinition) {
-				return thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition, channelDefinition.getLabel(), locale);
-			}
-		};
+        return new Function<ChannelDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelLabel(bundle, channelGroupTypeUID, channelDefinition, channelDefinition.getLabel(), locale);
+            }
+        };
     }
     
     private Function<ChannelDefinition, @Nullable String> createChannelDescriptionResolver(Bundle bundle, ChannelGroupTypeUID channelGroupTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelDefinition channelDefinition) {
-				return thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID, channelDefinition, channelDefinition.getDescription(), locale);
-			}
-		};
+        return new Function<ChannelDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelDefinition channelDefinition) {
+                return thingTypeI18nUtil.getChannelDescription(bundle, channelGroupTypeUID, channelDefinition, channelDefinition.getDescription(), locale);
+            }
+        };
     }
     
     private Function<ChannelGroupDefinition, @Nullable String> createChannelGroupLabelResolver(Bundle bundle, ThingTypeUID thingTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelGroupDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelGroupDefinition channelGroupDefinition) {
-				return thingTypeI18nUtil.getChannelGroupLabel(bundle, thingTypeUID, channelGroupDefinition, channelGroupDefinition.getLabel(), locale);
-			}
-		};
+        return new Function<ChannelGroupDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelGroupDefinition channelGroupDefinition) {
+                return thingTypeI18nUtil.getChannelGroupLabel(bundle, thingTypeUID, channelGroupDefinition, channelGroupDefinition.getLabel(), locale);
+            }
+        };
     }
     
     private Function<ChannelGroupDefinition, @Nullable String> createChannelGroupDescriptionResolver(Bundle bundle, ThingTypeUID thingTypeUID, @Nullable Locale locale){
-    	return new Function<ChannelGroupDefinition, @Nullable String>() {
-			
-			@Override
-			public @Nullable String apply(ChannelGroupDefinition channelGroupDefinition) {
-				return thingTypeI18nUtil.getChannelGroupDescription(bundle, thingTypeUID, channelGroupDefinition, channelGroupDefinition.getDescription(), locale);
-			}
-		};
+        return new Function<ChannelGroupDefinition, @Nullable String>() {
+            
+            @Override
+            public @Nullable String apply(ChannelGroupDefinition channelGroupDefinition) {
+                return thingTypeI18nUtil.getChannelGroupDescription(bundle, thingTypeUID, channelGroupDefinition, channelGroupDefinition.getDescription(), locale);
+            }
+        };
     }
     
 }

@@ -320,7 +320,7 @@ public final class FirmwareUpdateServiceImpl implements FirmwareUpdateService, E
                 newFirmwareStatusInfo);
 
         if (previousFirmwareStatusInfo == null || !previousFirmwareStatusInfo.equals(newFirmwareStatusInfo) 
-        	   || newFirmwareStatusInfo.getFirmwareStatus() == FirmwareStatus.UPDATE_EXECUTABLE) {
+               || newFirmwareStatusInfo.getFirmwareStatus() == FirmwareStatus.UPDATE_EXECUTABLE) {
             eventPublisher.post(FirmwareEventFactory.createFirmwareStatusInfoEvent(newFirmwareStatusInfo));
 
             if (newFirmwareStatusInfo.getFirmwareStatus() == FirmwareStatus.UPDATE_AVAILABLE
