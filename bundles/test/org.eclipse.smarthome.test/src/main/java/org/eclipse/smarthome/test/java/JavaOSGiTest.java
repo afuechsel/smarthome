@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.test.storage.VolatileStorageService;
 import org.junit.After;
 import org.junit.Assert;
@@ -109,7 +108,6 @@ public class JavaOSGiTest extends JavaTest {
         final ServiceReference<@Nullable T> serviceReferences[] = getServices(clazz);
 
         if (serviceReferences == null) {
-            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
             return Collections.emptyList();
         }
 
@@ -147,7 +145,6 @@ public class JavaOSGiTest extends JavaTest {
             Assert.fail("More than 1 service matching the filter is registered.");
         }
         if (filteredServices.isEmpty()) {
-            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
             return null;
         } else {
             return filteredServices.get(0);
@@ -190,7 +187,6 @@ public class JavaOSGiTest extends JavaTest {
         final ServiceReference<@Nullable T> serviceReferences[] = getServices(clazz);
 
         if (serviceReferences == null) {
-            new MissingServiceAnalyzer(System.out, bundleContext).printMissingServiceDetails(clazz);
             return Collections.emptyList();
         }
 
