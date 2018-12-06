@@ -47,8 +47,6 @@ import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent;
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxRemovedEvent;
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent;
-import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
-import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -70,8 +68,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InboxOSGITest extends JavaOSGiTest {
+
+    private final Logger logger = LoggerFactory.getLogger(InboxOSGITest.class);
 
     class DiscoveryService1 extends AbstractDiscoveryService {
         public DiscoveryService1() {
@@ -93,8 +95,8 @@ public class InboxOSGITest extends JavaOSGiTest {
         }
     }
 
-    private DiscoveryService1 discoveryService1 = new DiscoveryService1();
-    private DiscoveryService2 discoveryService2 = new DiscoveryService2();
+    private final DiscoveryService1 discoveryService1 = new DiscoveryService1();
+    private final DiscoveryService2 discoveryService2 = new DiscoveryService2();
 
     private static final int DEFAULT_TTL = 60;
 
@@ -769,54 +771,6 @@ public class InboxOSGITest extends JavaOSGiTest {
         removeDiscoveryResult(thingUID);
         waitForAssert(() -> assertThat(receivedEvent.getWrappedObject(), not(nullValue())));
         assertThat(receivedEvent.getWrappedObject(), is(instanceOf(InboxRemovedEvent.class)));
-    }
-
-    @Test
-    public void assertThatRemoveRemovesAssociatedDiscoveryResultsFromInboxWhenBridgeIsRemoved() {
-        List<Event> receivedEvents = new ArrayList<>();
-
-        EventSubscriber inboxEventSubscriber = new EventSubscriber() {
-            @Override
-            public void receive(Event event) {
-                receivedEvents.add(event);
-            }
-
-            @Override
-            public Set<String> getSubscribedEventTypes() {
-                return Stream.of(InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE).collect(toSet());
-            }
-
-            @Override
-            public @Nullable EventFilter getEventFilter() {
-                return null;
-            }
-        };
-
-        registerService(inboxEventSubscriber);
-        receivedEvents.clear();
-
-        inbox.add(BRIDGE);
-        inbox.add(THING1_WITH_BRIDGE);
-        inbox.add(THING2_WITH_BRIDGE);
-        inbox.add(THING_WITHOUT_BRIDGE);
-        inbox.add(THING_WITH_OTHER_BRIDGE);
-        waitForAssert(() -> assertThat(receivedEvents.size(), is(5)));
-        receivedEvents.clear();
-
-        assertTrue(inbox.remove(BRIDGE.getThingUID()));
-        assertTrue(inbox.get(new InboxFilterCriteria(BRIDGE.getThingUID(), DiscoveryResultFlag.NEW)).isEmpty());
-        assertTrue(inbox.get(new InboxFilterCriteria(THING1_WITH_BRIDGE.getThingUID(), DiscoveryResultFlag.NEW))
-                .isEmpty());
-        assertTrue(inbox.get(new InboxFilterCriteria(THING2_WITH_BRIDGE.getThingUID(), DiscoveryResultFlag.NEW))
-                .isEmpty());
-        assertThat(inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)),
-                hasItems(THING_WITHOUT_BRIDGE, THING_WITH_OTHER_BRIDGE));
-        waitForAssert(() -> {
-            assertThat(receivedEvents.size(), is(3));
-            for (Event event : receivedEvents) {
-                assertThat(event, is(instanceOf(InboxRemovedEvent.class)));
-            }
-        });
     }
 
     @Test

@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
@@ -37,6 +38,7 @@ import org.mockito.MockitoAnnotations;
  *
  * @author Jan N. Klug - Initial contribution
  */
+@Ignore
 public class TemperatureSensorThingHandlerTest extends AbstractThingHandlerTest {
     private static final String TEST_ID = "00.000000000000";
     private static final ThingUID THING_UID = new ThingUID(THING_TYPE_TEMPERATURE, "testthing");
