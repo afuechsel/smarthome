@@ -793,6 +793,7 @@ public class InboxOSGITest extends JavaOSGiTest {
         };
 
         registerService(inboxEventSubscriber);
+        receivedEvents.clear();
 
         inbox.add(BRIDGE);
         inbox.add(THING1_WITH_BRIDGE);
