@@ -340,9 +340,8 @@ public class HomematicThingHandler extends BaseThingHandler {
      */
     protected void updateDatapointState(HmDatapoint dp) {
         try {
-            if (HomematicTypeGeneratorImpl.isStatusDatapoint(dp)) {
-                updateStatus(dp.getChannel().getDevice());
-            }
+            updateStatus(dp.getChannel().getDevice());
+
             if (dp.getParamsetType() == HmParamsetType.MASTER) {
                 // update configuration
                 Configuration config = editConfiguration();
@@ -421,7 +420,10 @@ public class HomematicThingHandler extends BaseThingHandler {
         ThingStatus newStatus = ThingStatus.ONLINE;
         ThingStatusDetail newDetail = ThingStatusDetail.NONE;
 
-        if (device.isFirmwareUpdating()) {
+        if (getBridge().getStatus() == ThingStatus.OFFLINE) {
+            newStatus = ThingStatus.OFFLINE;
+            newDetail = ThingStatusDetail.BRIDGE_OFFLINE;
+        } else if (device.isFirmwareUpdating()) {
             newStatus = ThingStatus.OFFLINE;
             newDetail = ThingStatusDetail.FIRMWARE_UPDATING;
         } else if (device.isUnreach()) {
