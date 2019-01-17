@@ -6,11 +6,11 @@
   <parent>
     <artifactId>pom</artifactId>
     <groupId>org.eclipse.smarthome.binding</groupId>
-    <version>0.10.176-SNAPSHOT</version>
+    <version>0.10.177-SNAPSHOT</version>
   </parent>
 
   <artifactId>org.eclipse.smarthome.binding.openweathermap</artifactId>
-  <version>0.10.176-SNAPSHOT</version>
+  <version>0.10.177-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome OpenWeatherMap Binding</name>

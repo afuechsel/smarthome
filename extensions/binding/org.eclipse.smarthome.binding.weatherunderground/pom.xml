@@ -6,12 +6,12 @@
   <parent>
     <groupId>org.eclipse.smarthome.binding</groupId>
     <artifactId>pom</artifactId>
-    <version>0.10.176-SNAPSHOT</version>
+    <version>0.10.177-SNAPSHOT</version>
   </parent>
 
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.weatherunderground</artifactId>
-  <version>0.10.176-SNAPSHOT</version>
+  <version>0.10.177-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
   <name>Eclipse SmartHome WeatherUnderground Binding</name>
