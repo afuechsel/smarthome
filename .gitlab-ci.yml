@@ -1,0 +1,124 @@
+variables:
+    GIT_SSL_NO_VERIFY: 'true'
+    GITLAB_SSH_URL: qivicon-wbench.psst.t-online.corp
+    RELEASE_BUILD_NUMBER: distribution/releaseBuildNumber.txt
+    ESH_REPO_PATH: 'products/org.eclipse.smarthome.repo/target/*'
+    GRADLE_USER_HOME: .gradle
+    TEST_REPORTS_PATH: '*/target/reports/tests/*'
+    TEST_REPORTS_SECOND_PATH: '*/target/test-reports/*'
+
+image: qivicon-wbench.psst.t-online.corp/workbench/work-horse/image:latest
+
+stages:
+    - Prepare
+    - Build
+    - Deploy
+    
+#--------------------------- STAGE Prepare ----------------------------
+'Bump version':
+    stage: Prepare
+    tags:
+        - run_docker
+    variables:
+        GIT_STRATEGY: fetch
+    except:
+        variables:
+            - $ESH_NEW_VERSION == null
+    script:
+        - 'echo Bumping ESH to new version: $ESH_NEW_VERSION'
+        - 'mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$ESH_NEW_VERSION'
+
+#--------------------------- STAGE BUILD ----------------------------
+'Build snapshot':
+    stage: Build
+    tags:
+        - run_docker
+    variables:
+        GIT_STRATEGY: fetch
+    only:
+        - /^sprint.*$/
+    except:
+        - tags
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        paths:
+            - $ESH_REPO_PATH
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    script:
+        - 'mvn -version'
+        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+
+'Build release':
+    stage: Build
+    tags:
+        - run_docker
+    variables:
+        GIT_STRATEGY: fetch
+    only:
+        - /^release.*$/
+    except:
+        - tags
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        paths:
+            - $ESH_REPO_PATH
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    when: manual
+    script:
+        - 'echo Please remember to bump version on the release branch if not already done.  Instruction is in:'
+        - 'echo https://gard.telekom.de/gardwiki/display/QVC/Preparing+for+new+sprint'
+        - 'mvn -version'
+        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
+        
+#--------------------------- STAGE DEPLOY ----------------------------
+'snapshot to Nexus':
+    stage: Deploy
+    tags:
+        - run_docker
+    variables:
+        GIT_STRATEGY: fetch
+    only:
+        - /^sprint.*$/
+    except:
+        - tags
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        paths:
+            - $ESH_REPO_PATH
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    when: manual
+    script:
+        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
+'release to Nexus':
+    stage: Deploy
+    tags:
+        - run_docker
+    variables:
+        GIT_STRATEGY: fetch
+    only:
+        - /^release.*$/
+    except:
+        - tags
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        paths:
+            - $ESH_REPO_PATH
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    when: manual
+    script:
+        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
