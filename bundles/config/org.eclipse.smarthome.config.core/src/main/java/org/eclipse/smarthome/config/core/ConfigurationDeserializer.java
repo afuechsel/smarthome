@@ -71,7 +71,7 @@ public class ConfigurationDeserializer implements JsonDeserializer<Configuration
         if (primitive.isString()) {
             return primitive.getAsString();
         } else if (primitive.isNumber()) {
-            return primitive.getAsBigDecimal();
+            return primitive.getAsBigDecimal().stripTrailingZeros();
         } else if (primitive.isBoolean()) {
             return primitive.getAsBoolean();
         } else {
