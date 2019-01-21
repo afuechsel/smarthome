@@ -70,8 +70,6 @@ stages:
         paths:
             - $BUILD_PATH
         policy: pull
-    only:
-        - /^sprint.*$/
     except:
         - tags
     cache:
@@ -83,8 +81,6 @@ stages:
             - $ESH_REPO_PATH
         expire_in: 1 week
     script:
-        - 'echo whoami: $(/usr/bin/whoami) USER: $USER'
-        - 'ls -al /builds/gitlab/qrt/esh/extensions/ui/org.eclipse.smarthome.ui.basic/web/fonts/'
         - 'cd $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
 
 'Build release':
