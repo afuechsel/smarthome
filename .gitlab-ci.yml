@@ -49,7 +49,7 @@ stages:
         expire_in: 1 week
     script:
         - 'mvn -version'
-        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify,!extensions/ui/org.eclipse.smarthome.ui.basic"'
 
 'Build release':
     stage: Build
@@ -74,7 +74,7 @@ stages:
         - 'echo Please remember to bump version on the release branch if not already done.  Instruction is in:'
         - 'echo https://gard.telekom.de/gardwiki/display/QVC/Preparing+for+new+sprint'
         - 'mvn -version'
-        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'mvn clean install -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify,!extensions/ui/org.eclipse.smarthome.ui.basic"'
         
         
 #--------------------------- STAGE DEPLOY ----------------------------
@@ -98,7 +98,7 @@ stages:
         expire_in: 1 week
     when: manual
     script:
-        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify,!extensions/ui/org.eclipse.smarthome.ui.basic"'
         
 'release to Nexus':
     stage: Deploy
@@ -120,5 +120,5 @@ stages:
         expire_in: 1 week
     when: manual
     script:
-        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'mvn deploy -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify,!extensions/ui/org.eclipse.smarthome.ui.basic"'
         
