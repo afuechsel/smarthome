@@ -1,0 +1,150 @@
+variables:
+    GIT_SSL_NO_VERIFY: 'true'
+    GITLAB_SSH_URL: qivicon-wbench.psst.t-online.corp
+    RELEASE_BUILD_NUMBER: distribution/releaseBuildNumber.txt
+    BUILD_PATH: /builds/gitlab/qrt/esh
+    ESH_REPO_PATH: 'products/org.eclipse.smarthome.repo/target/*'
+    GRADLE_USER_HOME: .gradle
+    TEST_REPORTS_PATH: '*/target/reports/tests/*'
+    TEST_REPORTS_SECOND_PATH: '*/target/test-reports/*'
+
+image: qivicon-wbench.psst.t-online.corp/workbench/work-horse/image:latest
+
+stages:
+    - Prepare
+    - Build
+    - Deploy
+    
+#--------------------------- STAGE Prepare ----------------------------
+# Cannot use GIT_STRATEGY to pull repo.  There is a design issue with gitlab CI/CD.  The checkout 
+# portion is run by root user, causing the source code to be owned by root.  The build is executed
+# by build runner, which is coinop.
+#
+# Normally that is not a problem, but ESH build requires chmod to run.
+# The workaround is to checkout by the build user directly.
+
+'git-clone-checkout':
+    stage: Prepare
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+        policy: push
+    script:
+        - 'echo Using BUILD_PATH: $BUILD_PATH, Branch: $CI_COMMIT_REF_SLUG, SHA: $CI_COMMIT_SHA'
+        - 'git clone gitlab@qivicon-wbench.psst.t-online.corp:qrt/esh.git $BUILD_PATH'
+        - 'echo Checking out branch: $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
+
+'Bump version':
+    stage: Prepare
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+    only:
+        variables:
+            - $ESH_NEW_VERSION =~ /^[0-9].*/
+    script:
+        - 'echo Bumping ESH to new version: $ESH_NEW_VERSION'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$ESH_NEW_VERSION'
+        
+#--------------------------- STAGE BUILD ----------------------------
+'Build snapshot':
+    stage: Build
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+    except:
+        - tags
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    script:
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+
+'Build release':
+    stage: Build
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+    only:
+        - /^release.*$/
+    except:
+        - tags
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    when: manual
+    script:
+        - 'echo Please remember to bump version on the release branch if not already done.  Instruction is in:'
+        - 'echo https://gard.telekom.de/gardwiki/display/QVC/Preparing+for+new+sprint'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
+        
+#--------------------------- STAGE DEPLOY ----------------------------
+'snapshot to Nexus':
+    stage: Deploy
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+        policy: pull
+    only:
+        - /^sprint.*$/
+    except:
+        - tags
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    script:
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
+'release to Nexus':
+    stage: Deploy
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    cache:
+        key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+        paths:
+            - $BUILD_PATH
+        policy: pull
+    only:
+        - /^release.*$/
+    except:
+        - tags
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    when: manual
+    script:
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
