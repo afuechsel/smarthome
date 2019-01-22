@@ -38,7 +38,7 @@ stages:
         - 'echo Using BUILD_PATH: $BUILD_PATH, Branch: $CI_COMMIT_REF_SLUG, SHA: $CI_COMMIT_SHA'
         - 'git clone gitlab@qivicon-wbench.psst.t-online.corp:qrt/esh.git $BUILD_PATH'
         - 'echo Checking out branch: $CI_COMMIT_REF_NAME'
-        - 'cd $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
 
 'Bump version':
     stage: Prepare
@@ -55,7 +55,7 @@ stages:
             - $ESH_NEW_VERSION =~ /^[0-9].*/
     script:
         - 'echo Bumping ESH to new version: $ESH_NEW_VERSION'
-        - 'cd $BUILD_PATH;mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$ESH_NEW_VERSION'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$ESH_NEW_VERSION'
         
 #--------------------------- STAGE BUILD ----------------------------
 'Build snapshot':
@@ -68,7 +68,6 @@ stages:
         key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
         paths:
             - $BUILD_PATH
-        policy: pull
     except:
         - tags
     artifacts:
@@ -88,7 +87,6 @@ stages:
         key: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
         paths:
             - $BUILD_PATH
-        policy: pull
     only:
         - /^release.*$/
     except:
@@ -101,7 +99,7 @@ stages:
     script:
         - 'echo Please remember to bump version on the release branch if not already done.  Instruction is in:'
         - 'echo https://gard.telekom.de/gardwiki/display/QVC/Preparing+for+new+sprint'
-        - 'cd $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
         
         
 #--------------------------- STAGE DEPLOY ----------------------------
@@ -125,7 +123,7 @@ stages:
             - $ESH_REPO_PATH
         expire_in: 1 week
     script:
-        - 'cd $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
         
 'release to Nexus':
     stage: Deploy
@@ -148,5 +146,5 @@ stages:
         expire_in: 1 week
     when: manual
     script:
-        - 'cd $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn deploy -e -B -fae -DskipTests -Dmaven.test.skip=true -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
         
