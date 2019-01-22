@@ -484,7 +484,6 @@ public class ThingManagerImpl
             }
         }
 
-        storage.remove(thing.getUID().getAsString());
         this.things.remove(thing);
     }
 
@@ -706,11 +705,11 @@ public class ThingManagerImpl
     /**
      * Determines if all 'required' configuration parameters are available in the configuration
      *
-     * @param prototype the "prototype", i.e. thing type or channel type
-     * @param targetUID the UID of the thing or channel entity
+     * @param prototype                    the "prototype", i.e. thing type or channel type
+     * @param targetUID                    the UID of the thing or channel entity
      * @param configDescriptionURIFunction a function to determine the the config description UID for the given
-     *            prototype
-     * @param configuration the current configuration
+     *                                         prototype
+     * @param configuration                the current configuration
      * @return true if all required configuration parameters are given, false otherwise
      */
     private <T extends Identifiable<?>> boolean isComplete(T prototype, UID targetUID,
@@ -1267,7 +1266,8 @@ public class ThingManagerImpl
 
     private void persistThingEnableStatus(ThingUID thingUID, boolean enabled) {
         if (storage == null) {
-            logger.debug("Cannot persist enable status of thing with UID {}. Persistent storage unavailable.", thingUID);
+            logger.debug("Cannot persist enable status of thing with UID {}. Persistent storage unavailable.",
+                    thingUID);
             return;
         }
 
