@@ -12,7 +12,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.link.ChannelItemPostProcessor;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
@@ -149,6 +150,15 @@ public class ChannelItemProviderTest {
         provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
         verify(listener, never()).added(same(provider), same(ITEM));
         verify(linkRegistry, never()).getAll();
+    }
+
+    @Test
+    public void testItemCreationAndPostProcessing() {
+        ChannelItemPostProcessor channelItemPostProcessor = mock(ChannelItemPostProcessor.class);
+        provider.addChannelItemPostProcessor(channelItemPostProcessor);
+        provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
+
+        verify(channelItemPostProcessor, only()).postProcessItem(same(ITEM));
     }
 
     @SuppressWarnings("unchecked")

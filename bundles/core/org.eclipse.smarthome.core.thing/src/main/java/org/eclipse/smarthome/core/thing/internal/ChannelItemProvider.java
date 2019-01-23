@@ -15,10 +15,12 @@ package org.eclipse.smarthome.core.thing.internal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +38,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.link.ChannelItemPostProcessor;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelKind;
@@ -79,6 +82,8 @@ public class ChannelItemProvider implements ItemProvider {
     private volatile boolean initialized = false;
     private volatile long lastUpdate = System.nanoTime();
     private ScheduledExecutorService executor;
+
+    private final List<ChannelItemPostProcessor> channelItemPostProcessors = new CopyOnWriteArrayList<>();
 
     @Override
     public Collection<Item> getAll() {
@@ -155,6 +160,15 @@ public class ChannelItemProvider implements ItemProvider {
 
     protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
         this.channelTypeRegistry = null;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    protected void addChannelItemPostProcessor(ChannelItemPostProcessor channelItemPostProcessor) {
+        channelItemPostProcessors.add(channelItemPostProcessor);
+    }
+
+    protected void removeChannelItemPostProcessor(ChannelItemPostProcessor channelItemPostProcessor) {
+        channelItemPostProcessors.remove(channelItemPostProcessor);
     }
 
     @Activate
@@ -281,6 +295,7 @@ public class ChannelItemProvider implements ItemProvider {
                 gItem.setLabel(getLabel(channel));
                 gItem.setCategory(getCategory(channel));
                 gItem.addTags(channel.getDefaultTags());
+                postProcessChannelItem(gItem);
             }
             if (item != null) {
                 logger.trace("Created virtual item '{}'", item.getName());
@@ -289,6 +304,12 @@ public class ChannelItemProvider implements ItemProvider {
                     listener.added(this, item);
                 }
             }
+        }
+    }
+
+    private void postProcessChannelItem(GenericItem item) {
+        for (ChannelItemPostProcessor cipp : channelItemPostProcessors) {
+            cipp.postProcessItem(item);
         }
     }
 
