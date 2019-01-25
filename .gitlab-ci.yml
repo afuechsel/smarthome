@@ -7,6 +7,7 @@ variables:
     GRADLE_USER_HOME: .gradle
     TEST_REPORTS_PATH: '*/target/reports/tests/*'
     TEST_REPORTS_SECOND_PATH: '*/target/test-reports/*'
+    SUREFIRE_REPORT_PATH: '*/target/surefire-reports/*'
 
 image: qivicon-wbench.psst.t-online.corp/workbench/work-horse/image:latest
 
@@ -36,7 +37,11 @@ stages:
     artifacts:
         paths:
             - $ESH_REPO_PATH
+            - $SUREFIRE_REPORT_PATH
+            - $TEST_REPORTS_PATH
+            - $TEST_REPORTS_SECOND_PATH
         expire_in: 1 week
+    allow_failure: true
     script:
         - 'echo Using BUILD_PATH: $BUILD_PATH, Branch: $CI_COMMIT_REF_SLUG, SHA: $CI_COMMIT_SHA'
         - 'git clone gitlab@qivicon-wbench.psst.t-online.corp:qrt/esh.git $BUILD_PATH'
