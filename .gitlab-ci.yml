@@ -23,12 +23,35 @@ stages:
 
         
 #--------------------------- STAGE BUILD DEPLOY----------------------------
-'Build deploy snapshot':
+'Build feature branch':
     stage: BuildDeploy
     tags:
         - run02_docker
     variables:
         GIT_STRATEGY: none
+    except:
+        - tags
+        - /^sprint.*/
+        - /^release.*/
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    script:
+        - 'echo Using BUILD_PATH: $BUILD_PATH, Branch: $CI_COMMIT_REF_SLUG, SHA: $CI_COMMIT_SHA'
+        - 'git clone gitlab@qivicon-wbench.psst.t-online.corp:qrt/esh.git $BUILD_PATH'
+        - 'echo Checking out branch: $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean install -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+        
+'Build deploy sprint snapshot':
+    stage: BuildDeploy
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    only:
+        - /^sprint.*/
     except:
         - tags
     artifacts:
@@ -41,3 +64,24 @@ stages:
         - 'echo Checking out branch: $CI_COMMIT_REF_NAME'
         - 'cd $BUILD_PATH; ls -al $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
         - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean deploy -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-snapshots::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/snapshots/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
+
+'Build deploy release':
+    stage: BuildDeploy
+    tags:
+        - run02_docker
+    variables:
+        GIT_STRATEGY: none
+    only:
+        - /^release.*/
+    except:
+        - tags
+    artifacts:
+        paths:
+            - $ESH_REPO_PATH
+        expire_in: 1 week
+    script:
+        - 'echo Using BUILD_PATH: $BUILD_PATH, Branch: $CI_COMMIT_REF_SLUG, SHA: $CI_COMMIT_SHA'
+        - 'git clone gitlab@qivicon-wbench.psst.t-online.corp:qrt/esh.git $BUILD_PATH'
+        - 'echo Checking out branch: $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; git checkout $CI_COMMIT_REF_NAME'
+        - 'cd $BUILD_PATH; ls -al $BUILD_PATH; mvn clean deploy -e -B -fae -DskipChecks -Dmaven.javadoc.skip=true -DaltDeploymentRepository=nexus-sec-releases::default::http://qivicon-wbench.psst.t-online.corp/nexus/content/repositories/s_2ndparty/ -Dmaven.repo.local=.repository -pl "!distribution,!tools,!tools/archetype,!tools/archetype/binding,!tools/archetype/binding.test,!features/karaf,!features/karaf/esh-tp,!features/karaf/esh-core,!features/karaf/esh-ext,!features/karaf/verify"'
