@@ -33,7 +33,8 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
-import org.eclipse.smarthome.core.thing.link.ChannelItemPostProcessor;
+import org.eclipse.smarthome.core.thing.link.ChannelItemEnhancer;
+import org.eclipse.smarthome.core.thing.link.ChannelItemUpdateCallback;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
@@ -154,11 +155,48 @@ public class ChannelItemProviderTest {
 
     @Test
     public void testItemCreationAndPostProcessing() {
-        ChannelItemPostProcessor channelItemPostProcessor = mock(ChannelItemPostProcessor.class);
-        provider.addChannelItemPostProcessor(channelItemPostProcessor);
+        ChannelItemEnhancer enhancer = mock(ChannelItemEnhancer.class);
+        provider.setChannelItemEnhancer(enhancer);
         provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
 
-        verify(channelItemPostProcessor, only()).postProcessItem(same(ITEM));
+        verify(enhancer).postProcessItem(same(ITEM));
+    }
+
+    @Test
+    public void testAddUpdateCallback() {
+        ChannelItemEnhancer enhancer = mock(ChannelItemEnhancer.class);
+        provider.setChannelItemEnhancer(enhancer);
+
+        verify(enhancer, only()).setUpdateCallback(any(ChannelItemUpdateCallback.class));
+    }
+
+    @Test
+    public void testRemoveUpdateCallback() {
+        ChannelItemEnhancer enhancer = mock(ChannelItemEnhancer.class);
+        provider.unsetChannelItemEnhancer(enhancer);
+
+        verify(enhancer, only()).removeUpdateCallback(any(ChannelItemUpdateCallback.class));
+    }
+
+    @Test
+    public void testUpdateCallbackCalled() {
+        try {
+            provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
+            verify(listener, only()).added(same(provider), same(ITEM));
+
+            ChannelItemEnhancer enhancer = mock(ChannelItemEnhancer.class);
+            doAnswer(invocation -> {
+                ITEM.addTag("testTag");
+                ChannelItemUpdateCallback callback = invocation.getArgument(0);
+                callback.updateItem(ITEM);
+                return null;
+            }).when(enhancer).setUpdateCallback(any());
+
+            provider.setChannelItemEnhancer(enhancer);
+            verify(listener).updated(same(provider), same(ITEM), same(ITEM));
+        } finally {
+            ITEM.removeAllTags();
+        }
     }
 
     @SuppressWarnings("unchecked")
