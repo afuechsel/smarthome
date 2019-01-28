@@ -133,8 +133,10 @@ public class HomematicThingHandler extends BaseThingHandler {
             }
         }
 
-        // update configurations
         Configuration config = editConfiguration();
+        transmitConfigurationToDevice(config.getProperties(), device);
+        
+        // update configurations
         for (HmChannel channel : device.getChannels()) {
             loadHomematicChannelValues(channel);
             for (HmDatapoint dp : channel.getDatapoints()) {
@@ -487,7 +489,18 @@ public class HomematicThingHandler extends BaseThingHandler {
         try {
             HomematicGateway gateway = getHomematicGateway();
             HmDevice device = gateway.getDevice(UidUtils.getHomematicAddress(getThing()));
+            
+            transmitConfigurationToDevice(configurationParameters, device);
+            gateway.triggerDeviceValuesReload(device);
+        } catch (HomematicClientException | GatewayNotAvailableException ex) {
+            logger.error("Error updating thing configuration: {}", ex.getMessage(), ex);
+        }
+    }
+    
+    private void transmitConfigurationToDevice(Map<String, Object> configurationParameters, HmDevice device) {
+        logger.debug("Configuration to transmit: {}", configurationParameters);
 
+        try {
             for (Entry<String, Object> configurationParameter : configurationParameters.entrySet()) {
                 String key = configurationParameter.getKey();
                 Object newValue = configurationParameter.getValue();
@@ -512,10 +525,7 @@ public class HomematicThingHandler extends BaseThingHandler {
                                         newValue = decimal.doubleValue();
                                     }
                                 }
-                                if (ObjectUtils.notEqual(dp.isEnumType() ? dp.getOptionValue() : dp.getValue(),
-                                        newValue)) {
-                                    sendDatapoint(dp, new HmDatapointConfig(), newValue);
-                                }
+                                sendDatapoint(dp, new HmDatapointConfig(), newValue);
                             }
                         } catch (IOException ex) {
                             logger.error("Error setting thing property {}: {}", dpInfo, ex.getMessage());
@@ -525,9 +535,8 @@ public class HomematicThingHandler extends BaseThingHandler {
                     }
                 }
             }
-            gateway.triggerDeviceValuesReload(device);
         } catch (HomematicClientException | GatewayNotAvailableException ex) {
-            logger.error("Error setting thing properties: {}", ex.getMessage(), ex);
+            logger.error("Error sending configuration to device: {}", ex.getMessage(), ex);
         }
     }
 
