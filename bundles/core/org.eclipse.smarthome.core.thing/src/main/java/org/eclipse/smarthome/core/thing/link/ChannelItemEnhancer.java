@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014,2018 Contributors to the Eclipse Foundation
+ * Copyright (c) 2014,2019 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -29,7 +29,7 @@ public interface ChannelItemEnhancer {
 
     /**
      * Do any post processing, like adding tags and other modifications to the item before it gets added to the
-     * {@link ItemRegistry}.
+     * {@link ItemRegistry}. The call should be delegated a {@link ChannelItemPostProcessor}.
      *
      * @param item the {@link GenericItem} to post process.
      */
