@@ -33,7 +33,9 @@ import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.link.AbstractChannelItemEnhancer;
 import org.eclipse.smarthome.core.thing.link.ChannelItemEnhancer;
+import org.eclipse.smarthome.core.thing.link.ChannelItemPostProcessor;
 import org.eclipse.smarthome.core.thing.link.ChannelItemUpdateCallback;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -155,11 +157,13 @@ public class ChannelItemProviderTest {
 
     @Test
     public void testItemCreationAndPostProcessing() {
-        ChannelItemEnhancer enhancer = mock(ChannelItemEnhancer.class);
+        AbstractChannelItemEnhancer enhancer = mock(AbstractChannelItemEnhancer.class);
+        ChannelItemPostProcessor postProcessor = mock(ChannelItemPostProcessor.class);
+        enhancer.registerPostProcessor(postProcessor);
         provider.setChannelItemEnhancer(enhancer);
         provider.linkRegistryListener.added(new ItemChannelLink(ITEM_NAME, CHANNEL_UID));
 
-        verify(enhancer).postProcessItem(same(ITEM));
+        verify(postProcessor).postProcessItem(same(ITEM));
     }
 
     @Test
