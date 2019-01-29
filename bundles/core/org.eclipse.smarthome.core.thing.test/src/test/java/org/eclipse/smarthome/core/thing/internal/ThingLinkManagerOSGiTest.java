@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -106,7 +107,9 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
 
         ChannelType channelType = ChannelTypeBuilder.state(new ChannelTypeUID("hue:alarm"), "Alarm Channel", "Number")
                 .withStateDescription(state).build();
-        List<ChannelType> channelTypes = singletonList(channelType);
+        ChannelType triggerChannelType = ChannelTypeBuilder
+                .trigger(new ChannelTypeUID("hue:test"), "Test Trigger Channel").build();
+        List<ChannelType> channelTypes = Arrays.asList(channelType, triggerChannelType);
 
         ChannelTypeProvider channelTypeProvider = mock(ChannelTypeProvider.class);
         when(channelTypeProvider.getChannelTypes(nullable(Locale.class))).thenReturn(channelTypes);
@@ -122,7 +125,8 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
         registerService(channelTypeProvider);
 
         ThingType thingType = ThingTypeBuilder.instance(new ThingTypeUID("hue:lamp"), "label")
-                .withChannelDefinitions(singletonList(new ChannelDefinitionBuilder("1", channelType.getUID()).build()))
+                .withChannelDefinitions(Arrays.asList(new ChannelDefinitionBuilder("1", channelType.getUID()).build(),
+                        new ChannelDefinitionBuilder("2", triggerChannelType.getUID()).build()))
                 .build();
         SimpleThingTypeProvider thingTypeProvider = new SimpleThingTypeProvider(singletonList(thingType));
         registerService(thingTypeProvider);
@@ -145,14 +149,16 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
                 new Configuration());
 
         List<Channel> channels = thing.getChannels();
-        assertThat(channels.size(), is(1));
+        assertThat(channels.size(), is(2));
         Channel channel = channels.get(0);
 
         managedThingProvider.add(thing);
         waitForAssert(() -> assertThat(itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(1)));
+        waitForAssert(() -> assertThat(itemChannelLinkRegistry.getAll().size(), is(1)));
 
         managedThingProvider.remove(thingUID);
         waitForAssert(() -> assertThat(itemChannelLinkRegistry.getLinkedItems(channel.getUID()).size(), is(0)));
+        waitForAssert(() -> assertThat(itemChannelLinkRegistry.getAll().size(), is(0)));
     }
 
     @Test
@@ -168,6 +174,8 @@ public class ThingLinkManagerOSGiTest extends JavaOSGiTest {
             assertThat(context.remove("linkedChannel"), is(equalTo(channelUID)));
             assertThat(context.remove("unlinkedChannel"), is(nullValue()));
         });
+
+        assertThat(context.size(), is(0));
 
         itemChannelLinkRegistry.removeLinksForThing(thingUID);
 

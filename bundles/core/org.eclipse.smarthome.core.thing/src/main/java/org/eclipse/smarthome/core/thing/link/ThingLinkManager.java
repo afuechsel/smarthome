@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent;
+import org.eclipse.smarthome.core.thing.type.ChannelKind;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHandlerHelper;
@@ -253,8 +254,10 @@ public class ThingLinkManager extends AbstractTypedEventSubscriber<ThingStatusIn
                         return;
                     }
                 }
-                ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
-                itemChannelLinkRegistry.add(link);
+                if (channel.getKind() != ChannelKind.TRIGGER) {
+                    ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
+                    itemChannelLinkRegistry.add(link);
+                }
             }
         }
 
