@@ -354,7 +354,15 @@ public abstract class RpcClient<T> {
             RpcRequest<T> request = createRpcRequest("getValue");
             request.addArg(getRpcAddress(dp.getChannel().getDevice().getAddress()) + getChannelSuffix(dp.getChannel()));
             request.addArg(dp.getName());
-            new GetValueParser(dp).parse(sendMessage(config.getRpcPort(dp.getChannel()), request));
+
+            try {
+                Object[] response = sendMessage(config.getRpcPort(dp.getChannel()), request);
+                new GetValueParser(dp).parse(response);
+            } catch (UnknownRpcFailureException e) {
+                    logger.warn(
+                            "Could not load datapoint '{}' of device '{}': RpcResponse unknown RPC failure (-1 Failure)",
+                            dp.getName(), dp.getChannel().getDevice().getAddress());
+            }
         }
     }
 
