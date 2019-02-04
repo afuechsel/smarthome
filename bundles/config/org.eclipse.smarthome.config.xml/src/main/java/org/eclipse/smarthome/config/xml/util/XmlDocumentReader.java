@@ -12,6 +12,7 @@
  */
 package org.eclipse.smarthome.config.xml.util;
 
+import java.io.InputStream;
 import java.net.URL;
 
 import com.thoughtworks.xstream.XStream;
@@ -31,7 +32,7 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
  */
 public abstract class XmlDocumentReader<T> {
 
-    private XStream xstream;
+    private final XStream xstream;
 
     /**
      * The default constructor of this class initializes the {@code XStream} object, and calls
@@ -83,6 +84,25 @@ public abstract class XmlDocumentReader<T> {
     public T readFromXML(URL xmlURL) throws ConversionException {
         if (xmlURL != null) {
             return (T) this.xstream.fromXML(xmlURL);
+        }
+
+        return null;
+    }
+
+    /**
+     * Reads the XML document containing a specific XML tag from the specified {@link InputStream} and converts it to
+     * the according object.
+     * <p>
+     * This method returns {@code null} if the given URL is {@code null}.
+     *
+     * @param xmlInputStream the InputStream containing an XML document (could be null)
+     * @return the conversion result object (could be null)
+     * @throws ConversionException if the specified document contains invalid content
+     */
+    @SuppressWarnings("unchecked")
+    public T readFromXML(InputStream xmlInputStream) throws ConversionException {
+        if (xmlInputStream != null) {
+            return (T) this.xstream.fromXML(xmlInputStream);
         }
 
         return null;
