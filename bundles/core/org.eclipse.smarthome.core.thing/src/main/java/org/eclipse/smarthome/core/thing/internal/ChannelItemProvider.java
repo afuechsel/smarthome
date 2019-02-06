@@ -76,6 +76,7 @@ public class ChannelItemProvider implements ItemProvider {
     private final Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
     private ChannelTypeRegistry channelTypeRegistry;
+    private volatile ChannelItemEnhancer channelItemEnhancer;
 
     private boolean enabled = true;
     private volatile boolean initialized = false;
@@ -106,7 +107,6 @@ public class ChannelItemProvider implements ItemProvider {
         }
     };
 
-    private ChannelItemEnhancer channelItemEnhancer;
     protected final ChannelItemUpdateCallback channelItemUpdateCallback = new ChannelItemProviderCallback(this);
 
     @Override
@@ -186,7 +186,7 @@ public class ChannelItemProvider implements ItemProvider {
         this.channelTypeRegistry = null;
     }
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
     protected void setChannelItemEnhancer(ChannelItemEnhancer channelItemEnhancer) {
         channelItemEnhancer.setUpdateCallback(channelItemUpdateCallback);
         this.channelItemEnhancer = channelItemEnhancer;
